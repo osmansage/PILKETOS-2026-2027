@@ -1,0 +1,83 @@
+<?php
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/functions.php';
+
+if (is_admin_logged_in()) {
+    redirect('index.php');
+}
+
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim((string) ($_POST['username'] ?? ''));
+    $password = (string) ($_POST['password'] ?? '');
+
+    if (!verify_csrf($_POST['csrf_token'] ?? null)) {
+        $error = 'Sesi tidak valid. Silakan coba lagi.';
+    } elseif ($username === '' || $password === '') {
+        $error = 'Username dan password wajib diisi.';
+    } else {
+        $stmt = $pdo->prepare('SELECT id, username, password FROM admin WHERE username = ? LIMIT 1');
+        $stmt->execute([$username]);
+        $admin = $stmt->fetch();
+
+        if (!$admin || !password_verify($password, $admin['password'])) {
+            $error = 'Username atau password salah.';
+        } else {
+            session_regenerate_id(true);
+            $_SESSION['admin_id'] = (int) $admin['id'];
+            $_SESSION['admin_username'] = $admin['username'];
+            redirect('index.php');
+        }
+    }
+}
+?>
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?= page_title('Login Admin'); ?></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="flex min-h-screen items-center justify-center px-4 py-10">
+    <main class="glass w-full max-w-md rounded-[2rem] p-8" data-aos="fade-up">
+        <div class="mb-7 text-center">
+            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-3xl text-[#07172f] shadow-xl">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h1 class="text-2xl font-black text-white">Dashboard Admin</h1>
+            <p class="mt-2 text-sm text-slate-300">Pantau hasil voting secara real-time.</p>
+        </div>
+
+        <?php if ($error !== ''): ?>
+            <div class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"><?= e($error); ?></div>
+        <?php endif; ?>
+
+        <form method="post" class="space-y-5">
+            <input type="hidden" name="csrf_token" value="<?= e(csrf_token()); ?>">
+            <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-200">Username</span>
+                <input class="focus-ring w-full rounded-2xl border border-white/20 bg-white/90 px-4 py-3 font-semibold text-slate-900" type="text" name="username" placeholder="admin" required>
+            </label>
+            <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-200">Password</span>
+                <input class="focus-ring w-full rounded-2xl border border-white/20 bg-white/90 px-4 py-3 font-semibold text-slate-900" type="password" name="password" placeholder="password" required>
+            </label>
+            <button class="btn-ripple flex w-full items-center justify-center gap-3 rounded-2xl bg-[#f6c85f] px-5 py-3 font-black text-[#07172f] shadow-xl transition hover:bg-white" type="submit">
+                <i class="fa-solid fa-lock-open"></i>
+                Masuk Admin
+            </button>
+        </form>
+        <a href="../login.php" class="mt-6 block text-center text-sm font-bold text-white underline decoration-white/30 underline-offset-4">Kembali ke Login Siswa</a>
+    </main>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
