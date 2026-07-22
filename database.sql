@@ -19,7 +19,6 @@ CREATE TABLE candidates (
     number TINYINT UNSIGNED NOT NULL UNIQUE,
     photo VARCHAR(255) NOT NULL,
     chair_name VARCHAR(120) NOT NULL,
-    vice_name VARCHAR(120) NOT NULL,
     vision TEXT NOT NULL,
     mission TEXT NOT NULL,
     total_votes INT UNSIGNED NOT NULL DEFAULT 0,
@@ -45,10 +44,10 @@ CREATE TABLE admin (
 INSERT INTO admin (username, password) VALUES
 ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
 
-INSERT INTO candidates (number, photo, chair_name, vice_name, vision, mission, total_votes) VALUES
-(1, 'assets/images/candidate-1.svg', 'Aldi Pratama', 'Nabila Zahra', 'Mewujudkan OSIS SMAN 1 Gedeg yang aktif, transparan, dan peduli pada aspirasi seluruh siswa.', '1. Membuka kanal aspirasi siswa secara berkala.\n2. Menghidupkan program literasi, seni, olahraga, dan kewirausahaan.\n3. Membangun budaya disiplin, ramah, dan saling menghargai.', 0),
-(2, 'assets/images/candidate-2.svg', 'Raka Aditya', 'Salsabila Putri', 'Menjadikan OSIS sebagai ruang kolaborasi kreatif yang berprestasi dan bermanfaat bagi warga sekolah.', '1. Membentuk tim minat bakat yang inklusif.\n2. Mengadakan kegiatan sekolah berbasis karya dan prestasi.\n3. Memperkuat kerja sama OSIS dengan ekstrakurikuler.', 0),
-(3, 'assets/images/candidate-3.svg', 'Farel Maulana', 'Dewi Anggraini', 'Membangun lingkungan sekolah yang harmonis, inovatif, dan berkarakter untuk meningkatkan mutu SMAN 1 Gedeg.', '1. Mengembangkan program kebersihan dan kepedulian sosial.\n2. Mendorong digitalisasi informasi kegiatan siswa.\n3. Menyelenggarakan forum evaluasi kegiatan OSIS setiap bulan.', 0);
+INSERT INTO candidates (number, photo, chair_name, vision, mission, total_votes) VALUES
+(1, 'assets/images/candidate-1.svg', 'Aldi Pratama', 'Mewujudkan OSIS SMAN 1 Gedeg yang aktif, transparan, dan peduli pada aspirasi seluruh siswa.', '1. Membuka kanal aspirasi siswa secara berkala.\n2. Menghidupkan program literasi, seni, olahraga, dan kewirausahaan.\n3. Membangun budaya disiplin, ramah, dan saling menghargai.', 0),
+(2, 'assets/images/candidate-2.svg', 'Raka Aditya', 'Menjadikan OSIS sebagai ruang kolaborasi kreatif yang berprestasi dan bermanfaat bagi warga sekolah.', '1. Membentuk tim minat bakat yang inklusif.\n2. Mengadakan kegiatan sekolah berbasis karya dan prestasi.\n3. Memperkuat kerja sama OSIS dengan ekstrakurikuler.', 0),
+(3, 'assets/images/candidate-3.svg', 'Farel Maulana', 'Membangun lingkungan sekolah yang harmonis, inovatif, dan berkarakter untuk meningkatkan mutu SMAN 1 Gedeg.', '1. Mengembangkan program kebersihan dan kepedulian sosial.\n2. Mendorong digitalisasi informasi kegiatan siswa.\n3. Menyelenggarakan forum evaluasi kegiatan OSIS setiap bulan.', 0);
 
 INSERT INTO users (name, password, status_vote)
 SELECT
@@ -66,5 +65,5 @@ FROM (
     CROSS JOIN
         (SELECT 0 n UNION ALL SELECT 1) thousands
 ) seq
-WHERE seq.n BETWEEN 1 AND 1260
+WHERE seq.n BETWEEN 1 AND 1360
 ORDER BY seq.n;

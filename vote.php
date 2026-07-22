@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$candidateId) {
-        flash('error', 'Pilih salah satu pasangan calon.');
+        flash('error', 'Pilih salah satu calon ketua.');
         redirect('vote.php');
     }
 
@@ -87,7 +87,7 @@ $flash = get_flash();
     <header class="mx-auto mb-8 flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" data-aos="fade-down">
         <div>
             <p class="text-sm font-bold uppercase tracking-[0.2em] text-[#f6c85f]">Pemilihan Ketua OSIS</p>
-            <h1 class="text-3xl font-black text-white sm:text-4xl">Pilih Pasangan Calon</h1>
+            <h1 class="text-3xl font-black text-white sm:text-4xl">Pilih Calon Ketua</h1>
             <p class="mt-2 text-slate-300">Halo, <?= e($_SESSION['user_name']); ?>. Suara hanya dapat dikirim satu kali.</p>
         </div>
         <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-white hover:text-[#07172f]" href="logout.php">
@@ -107,20 +107,18 @@ $flash = get_flash();
 
             <div class="grid gap-6 lg:grid-cols-3">
                 <?php foreach ($candidates as $candidate): ?>
-                    <article class="candidate-card glass-light relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-transparent text-slate-900" data-aos="fade-up" data-candidate-card data-candidate-id="<?= (int) $candidate['id']; ?>" data-candidate-name="<?= e($candidate['chair_name'] . ' & ' . $candidate['vice_name']); ?>">
+                    <article class="candidate-card glass-light relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-transparent text-slate-900" data-aos="fade-up" data-candidate-card data-candidate-id="<?= (int) $candidate['id']; ?>" data-candidate-name="<?= e($candidate['chair_name']); ?>">
                         <div class="select-badge absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-[#f6c85f] text-[#07172f] shadow-xl">
                             <i class="fa-solid fa-check"></i>
                         </div>
                         <div class="relative bg-[#07172f] p-6 text-white">
                             <div class="absolute left-6 top-6 rounded-2xl bg-[#f6c85f] px-4 py-2 text-xl font-black text-[#07172f]">No. <?= (int) $candidate['number']; ?></div>
-                            <img class="mx-auto h-56 w-56 rounded-full border-4 border-white/30 object-cover shadow-2xl" src="<?= e($candidate['photo']); ?>" alt="Foto pasangan calon nomor <?= (int) $candidate['number']; ?>">
+                            <img class="mx-auto h-56 w-56 rounded-full border-4 border-white/30 object-cover shadow-2xl" src="<?= e($candidate['photo']); ?>" alt="Foto calon ketua nomor <?= (int) $candidate['number']; ?>">
                         </div>
                         <div class="space-y-5 p-6">
                             <div>
                                 <p class="text-sm font-bold uppercase tracking-wide text-slate-500">Ketua</p>
                                 <h2 class="text-2xl font-black text-[#07172f]"><?= e($candidate['chair_name']); ?></h2>
-                                <p class="mt-2 text-sm font-bold uppercase tracking-wide text-slate-500">Wakil</p>
-                                <h3 class="text-xl font-extrabold text-slate-800"><?= e($candidate['vice_name']); ?></h3>
                             </div>
                             <div>
                                 <p class="font-black text-[#07172f]">Visi</p>

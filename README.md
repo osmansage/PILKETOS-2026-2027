@@ -6,7 +6,7 @@ Project website e-voting berbasis PHP Native, MySQL, Tailwind CSS, JavaScript Va
 
 - Login siswa menggunakan nama dan password dari database.
 - Satu akun hanya dapat memilih satu kali.
-- Voting 3 pasangan calon dengan modal konfirmasi.
+- Voting 3 calon ketua dengan modal konfirmasi.
 - Penyimpanan suara menggunakan PDO, prepared statement, transaksi, session, CSRF protection, dan output escaping.
 - Halaman terima kasih setelah voting.
 - Dashboard admin real-time dengan Fetch API, grafik voting, statistik peserta, dan progress bar kandidat.
@@ -68,7 +68,7 @@ Password: password
 
 ## Login Siswa
 
-File SQL membuat 1260 akun siswa otomatis.
+File SQL membuat 1360 akun siswa otomatis.
 
 ```text
 Nama: Siswa 0001
@@ -80,7 +80,7 @@ Contoh lain:
 ```text
 Siswa 0002
 Siswa 0120
-Siswa 1260
+Siswa 1360
 ```
 
 Semua akun siswa contoh memakai password `password`.

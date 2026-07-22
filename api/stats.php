@@ -18,7 +18,7 @@ $notVoted = max(0, $totalVoters - $voted);
 $totalVotes = (int) $pdo->query('SELECT COUNT(*) FROM votes')->fetchColumn();
 $participation = $totalVoters > 0 ? round(($voted / $totalVoters) * 100, 2) : 0;
 
-$stmt = $pdo->query('SELECT id, number, chair_name, vice_name, total_votes FROM candidates ORDER BY number ASC');
+$stmt = $pdo->query('SELECT id, number, chair_name, total_votes FROM candidates ORDER BY number ASC');
 $candidates = [];
 
 foreach ($stmt->fetchAll() as $candidate) {
@@ -27,7 +27,6 @@ foreach ($stmt->fetchAll() as $candidate) {
         'id' => (int) $candidate['id'],
         'number' => (int) $candidate['number'],
         'chair_name' => $candidate['chair_name'],
-        'vice_name' => $candidate['vice_name'],
         'total_votes' => $candidateVotes,
         'percentage' => $totalVotes > 0 ? round(($candidateVotes / $totalVotes) * 100, 2) : 0,
     ];

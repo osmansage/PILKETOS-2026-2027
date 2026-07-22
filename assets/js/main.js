@@ -100,7 +100,7 @@ function initDashboard() {
                 <div class="flex items-center justify-between gap-4">
                     <div>
                         <p class="text-sm font-semibold text-slate-500">Nomor ${candidate.number}</p>
-                        <h3 class="text-lg font-bold">${escapeHtml(candidate.chair_name)} & ${escapeHtml(candidate.vice_name)}</h3>
+                        <h3 class="text-lg font-bold">${escapeHtml(candidate.chair_name)}</h3>
                     </div>
                     <div class="text-right">
                         <p class="text-2xl font-black text-[#07172f]">${candidate.total_votes}</p>
