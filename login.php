@@ -63,12 +63,12 @@ $flash = get_flash();
             </div>
             <div class="grid max-w-2xl gap-4 sm:grid-cols-3">
                 <div class="glass rounded-3xl p-5">
-                    <p class="text-3xl font-black text-white">1260</p>
+                    <p class="text-3xl font-black text-white">1360</p>
                     <p class="text-sm font-medium text-slate-300">Peserta</p>
                 </div>
                 <div class="glass rounded-3xl p-5">
                     <p class="text-3xl font-black text-white">3</p>
-                    <p class="text-sm font-medium text-slate-300">Paslon</p>
+                    <p class="text-sm font-medium text-slate-300">Calon</p>
                 </div>
                 <div class="glass rounded-3xl p-5">
                     <p class="text-3xl font-black text-white">1x</p>

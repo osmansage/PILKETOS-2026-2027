@@ -26,10 +26,16 @@ require_admin();
                 <h1 class="text-3xl font-black text-white sm:text-4xl">Hasil E-Voting OSIS</h1>
                 <p class="mt-2 text-slate-300">Login sebagai <?= e($_SESSION['admin_username']); ?>. <span data-refresh-status>Memuat data...</span></p>
             </div>
-            <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 font-black text-[#07172f] shadow-xl transition hover:-translate-y-0.5" href="logout.php">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                Keluar
-            </a>
+            <div class="flex flex-wrap gap-3">
+                <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white shadow-xl transition hover:bg-white hover:text-[#07172f]" href="account.php">
+                    <i class="fa-solid fa-user-gear"></i>
+                    Ubah Akun
+                </a>
+                <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 font-black text-[#07172f] shadow-xl transition hover:-translate-y-0.5" href="logout.php">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Keluar
+                </a>
+            </div>
         </header>
 
         <section class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
