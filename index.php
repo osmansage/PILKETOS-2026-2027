@@ -136,6 +136,12 @@ try {
             </div>
             <h1 class="text-2xl font-black mb-3">Koneksi Database Gagal</h1>
             <p class="text-sm text-slate-300 leading-6 mb-6">Aplikasi belum terhubung ke database. Jika ini instalasi baru, Anda harus menjalankan halaman setup terlebih dahulu.</p>
+            
+            <div class="mb-6 rounded-xl bg-black/40 p-4 text-left font-mono text-[10px] text-red-300 overflow-x-auto max-h-36">
+                <strong>Detail Error:</strong><br>
+                <?= e($exception->getMessage()); ?>
+            </div>
+
             <a href="/install" class="btn-ripple flex items-center justify-center gap-2 rounded-2xl bg-[#f6c85f] px-5 py-3.5 font-black text-[#07172f] shadow-xl transition hover:bg-white">
                 <i class="fa-solid fa-circle-play"></i> Mulai Instalasi
             </a>
