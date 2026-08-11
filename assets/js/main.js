@@ -1,6 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (window.AOS) {
-        AOS.init({ duration: 700, once: true, offset: 80 });
+        AOS.init({
+            duration: 750,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 70,
+            disable: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+        });
     }
 
     document.querySelectorAll('.btn-ripple').forEach((button) => {
@@ -93,9 +99,11 @@ function initDashboard() {
         const list = document.querySelector('[data-candidate-results]');
         list.innerHTML = '';
 
-        data.candidates.forEach((candidate) => {
+        data.candidates.forEach((candidate, index) => {
             const item = document.createElement('div');
             item.className = 'rounded-2xl bg-white p-5 text-slate-900 shadow-lg';
+            item.dataset.aos = 'fade-up';
+            item.dataset.aosDelay = String(index * 90);
             item.innerHTML = `
                 <div class="flex items-center justify-between gap-4">
                     <div>
@@ -114,6 +122,10 @@ function initDashboard() {
             `;
             list.appendChild(item);
         });
+
+        if (window.AOS) {
+            AOS.refreshHard();
+        }
     }
 
     loadStats();
@@ -139,7 +151,11 @@ function drawChart(context, canvas, candidates) {
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, rect.width, rect.height);
 
-    const total = candidates.reduce((sum, candidate) => sum + Number(candidate.total_votes), 0) || 1;
+    const totalSuara = candidates.reduce(
+        (sum, candidate) => sum + Number(candidate.total_votes),
+        0
+    );
+    const totalUntukGrafik = totalSuara || 1;
     const colors = ['#54d6ff', '#f6c85f', '#8bffb0'];
     let start = -Math.PI / 2;
     const centerX = rect.width / 2;
@@ -147,7 +163,7 @@ function drawChart(context, canvas, candidates) {
     const radius = Math.min(rect.width, rect.height) * 0.34;
 
     candidates.forEach((candidate, index) => {
-        const slice = (Number(candidate.total_votes) / total) * Math.PI * 2;
+        const slice = (Number(candidate.total_votes) / totalUntukGrafik) * Math.PI * 2;
         context.beginPath();
         context.moveTo(centerX, centerY);
         context.arc(centerX, centerY, radius, start, start + slice);
@@ -165,7 +181,7 @@ function drawChart(context, canvas, candidates) {
     context.fillStyle = '#07172f';
     context.font = '700 22px Poppins, sans-serif';
     context.textAlign = 'center';
-    context.fillText(String(total), centerX, centerY - 4);
+    context.fillText(String(totalSuara), centerX, centerY - 4);
     context.font = '600 12px Poppins, sans-serif';
     context.fillStyle = '#64748b';
     context.fillText('Suara Masuk', centerX, centerY + 18);

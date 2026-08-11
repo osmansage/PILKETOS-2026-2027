@@ -9,7 +9,7 @@ $stmt->execute([$_SESSION['user_id']]);
 $currentUser = $stmt->fetch();
 
 if (!$currentUser || $currentUser['status_vote'] === 'sudah') {
-    unset($_SESSION['user_id'], $_SESSION['user_name']);
+    unset($_SESSION['user_id'], $_SESSION['user_username']);
     flash('error', 'Akun ini sudah digunakan untuk memilih dan tidak boleh voting lagi.');
     redirect('login.php');
 }
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $pdo->commit();
 
-        unset($_SESSION['user_id'], $_SESSION['user_name']);
+        unset($_SESSION['user_id'], $_SESSION['user_username']);
         $_SESSION['vote_success'] = true;
         redirect('thanks.php');
     } catch (Throwable $exception) {
@@ -88,7 +88,7 @@ $flash = get_flash();
         <div>
             <p class="text-sm font-bold uppercase tracking-[0.2em] text-[#f6c85f]">Pemilihan Ketua OSIS</p>
             <h1 class="text-3xl font-black text-white sm:text-4xl">Pilih Calon Ketua</h1>
-            <p class="mt-2 text-slate-300">Halo, <?= e($_SESSION['user_name']); ?>. Suara hanya dapat dikirim satu kali.</p>
+            <p class="mt-2 text-slate-300">Halo, <?= e($_SESSION['user_username']); ?>. Suara hanya dapat dikirim satu kali.</p>
         </div>
         <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-white hover:text-[#07172f]" href="logout.php">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -107,7 +107,7 @@ $flash = get_flash();
 
             <div class="grid gap-6 lg:grid-cols-3">
                 <?php foreach ($candidates as $candidate): ?>
-                    <article class="candidate-card glass-light relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-transparent text-slate-900" data-aos="fade-up" data-candidate-card data-candidate-id="<?= (int) $candidate['id']; ?>" data-candidate-name="<?= e($candidate['chair_name']); ?>">
+                    <article class="candidate-card glass-light relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-transparent text-slate-900" data-aos="fade-up" data-aos-delay="<?= ((int) $candidate['number'] - 1) * 100; ?>" data-aos-anchor-placement="top-bottom" data-candidate-card data-candidate-id="<?= (int) $candidate['id']; ?>" data-candidate-name="<?= e($candidate['chair_name']); ?>">
                         <div class="select-badge absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-[#f6c85f] text-[#07172f] shadow-xl">
                             <i class="fa-solid fa-check"></i>
                         </div>

@@ -52,7 +52,7 @@ function get_flash(): ?array
 
 function is_student_logged_in(): bool
 {
-    return isset($_SESSION['user_id'], $_SESSION['user_name']);
+    return isset($_SESSION['user_id'], $_SESSION['user_username']);
 }
 
 function require_student(): void

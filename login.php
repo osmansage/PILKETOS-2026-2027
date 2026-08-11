@@ -9,26 +9,25 @@ if (is_student_logged_in()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim((string) ($_POST['name'] ?? ''));
-    $password = (string) ($_POST['password'] ?? '');
+    $username = strtoupper(trim((string) ($_POST['username'] ?? '')));
 
     if (!verify_csrf($_POST['csrf_token'] ?? null)) {
         $error = 'Sesi tidak valid. Silakan coba lagi.';
-    } elseif ($name === '' || $password === '') {
-        $error = 'Nama dan password wajib diisi.';
+    } elseif (!preg_match('/^[A-Z0-9]{20}$/', $username)) {
+        $error = 'Kode peserta harus terdiri dari 20 karakter huruf atau angka.';
     } else {
-        $stmt = $pdo->prepare('SELECT id, name, password, status_vote FROM users WHERE name = ? LIMIT 1');
-        $stmt->execute([$name]);
+        $stmt = $pdo->prepare('SELECT id, username, status_vote FROM users WHERE username = ? LIMIT 1');
+        $stmt->execute([$username]);
         $user = $stmt->fetch();
 
-        if (!$user || !password_verify($password, $user['password'])) {
-            $error = 'Nama atau password salah.';
+        if (!$user) {
+            $error = 'Username tidak ditemukan.';
         } elseif ($user['status_vote'] === 'sudah') {
             $error = 'Akun ini sudah digunakan untuk memilih dan tidak dapat voting lagi.';
         } else {
             session_regenerate_id(true);
             $_SESSION['user_id'] = (int) $user['id'];
-            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_username'] = $user['username'];
             redirect('vote.php');
         }
     }
@@ -83,7 +82,7 @@ $flash = get_flash();
                     <i class="fa-solid fa-user-check"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-white">Login Siswa</h2>
-                <p class="mt-2 text-sm text-slate-300">Gunakan nama dan password dari panitia.</p>
+                <p class="mt-2 text-sm text-slate-300">Masukkan kode peserta 20 karakter dari panitia.</p>
             </div>
 
             <?php if ($error !== ''): ?>
@@ -96,12 +95,8 @@ $flash = get_flash();
             <form method="post" class="space-y-5" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()); ?>">
                 <label class="block">
-                    <span class="mb-2 block text-sm font-semibold text-slate-200">Nama</span>
-                    <input class="focus-ring w-full rounded-2xl border border-white/20 bg-white/90 px-4 py-3 font-semibold text-slate-900 shadow-inner" type="text" name="name" placeholder="Contoh: Siswa 0001" required>
-                </label>
-                <label class="block">
-                    <span class="mb-2 block text-sm font-semibold text-slate-200">Password</span>
-                    <input class="focus-ring w-full rounded-2xl border border-white/20 bg-white/90 px-4 py-3 font-semibold text-slate-900 shadow-inner" type="password" name="password" placeholder="Masukkan password" required>
+                    <span class="mb-2 block text-sm font-semibold text-slate-200">Kode Peserta</span>
+                    <input class="focus-ring w-full rounded-2xl border border-white/20 bg-white/90 px-4 py-3 font-semibold uppercase text-slate-900 shadow-inner" type="text" name="username" placeholder="Contoh: FZ9BRSTCWXD69V6SQ2AT" minlength="20" maxlength="20" pattern="[A-Za-z0-9]{20}" autocapitalize="characters" autocomplete="off" required>
                 </label>
                 <button class="btn-ripple focus-ring flex w-full items-center justify-center gap-3 rounded-2xl bg-[#f6c85f] px-5 py-3 font-black text-[#07172f] shadow-xl transition hover:-translate-y-0.5 hover:bg-white" type="submit">
                     <i class="fa-solid fa-right-to-bracket"></i>

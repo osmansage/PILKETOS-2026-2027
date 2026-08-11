@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640" role="img" aria-label="Foto kandidat nomor 3">
-  <rect width="640" height="640" rx="320" fill="#8bffb0"/>
-  <circle cx="245" cy="250" r="86" fill="#07172f"/>
-  <circle cx="397" cy="250" r="86" fill="#10294f"/>
-  <path d="M94 560c28-124 118-178 226-178s198 54 226 178" fill="#ffffff"/>
-  <path d="M140 560c28-78 91-112 180-112s152 34 180 112" fill="#54d6ff"/>
-  <text x="320" y="130" font-family="Arial, sans-serif" font-size="72" font-weight="800" text-anchor="middle" fill="#07172f">03</text>
-</svg>

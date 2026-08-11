@@ -4,7 +4,7 @@ Project website e-voting berbasis PHP Native, MySQL, Tailwind CSS, JavaScript Va
 
 ## Fitur
 
-- Login siswa menggunakan nama dan password dari database.
+- Login siswa menggunakan kode peserta acak 20 karakter dari database.
 - Satu akun hanya dapat memilih satu kali.
 - Voting 3 calon ketua dengan modal konfirmasi.
 - Penyimpanan suara menggunakan PDO, prepared statement, transaksi, session, CSRF protection, dan output escaping.
@@ -16,8 +16,14 @@ Project website e-voting berbasis PHP Native, MySQL, Tailwind CSS, JavaScript Va
 1. Salin folder project ke direktori web server, misalnya `htdocs/PILKETOS-026-2027` jika memakai XAMPP.
 2. Jalankan Apache dan MySQL.
 3. Import file `database.sql` ke MySQL melalui phpMyAdmin atau terminal.
-4. Sesuaikan konfigurasi database di `config/database.php`.
-5. Buka project dari browser:
+4. Jalankan importer kode peserta setelah file SQL selesai diimpor:
+
+```powershell
+C:\laragon\bin\php\php-8.1.32-nts-Win32-vs16-x64\php.exe database\import_codes.php "C:\Users\ACER\Downloads\1360_kode_acak_20_digit.xlsx"
+```
+
+5. Sesuaikan konfigurasi database di `config/database.php`.
+6. Buka project dari browser:
 
 ```text
 http://localhost/PILKETOS-026-2027/
@@ -68,22 +74,14 @@ Password: password
 
 ## Login Siswa
 
-File SQL membuat 1360 akun siswa otomatis.
+Impor workbook `1360_kode_acak_20_digit.xlsx` memakai `database/import_codes.php`. Script memvalidasi bahwa ada tepat 1.360 kode unik, lalu menyimpannya pada tabel `users`.
 
 ```text
-Nama: Siswa 0001
-Password: password
+Contoh kode: FZ9BRSTCWXD69V6SQ2AT
 ```
 
-Contoh lain:
+Kode tidak membedakan huruf besar atau kecil saat login, tetapi hanya menerima 20 karakter huruf dan angka.
 
-```text
-Siswa 0002
-Siswa 0120
-Siswa 1360
-```
-
-Semua akun siswa contoh memakai password `password`.
 
 ## Struktur Folder
 
@@ -110,7 +108,7 @@ Semua akun siswa contoh memakai password `password`.
 
 ## Catatan Keamanan
 
-- Password disimpan dengan hash BCrypt dan diverifikasi dengan `password_verify`.
+- Password administrator disimpan dengan hash BCrypt dan diverifikasi dengan `password_verify`.
 - Semua query memakai PDO prepared statement.
 - Proses voting memakai database transaction dan `SELECT ... FOR UPDATE`.
 - Tabel `votes` memakai unique key pada `user_id` agar satu user hanya bisa memiliki satu suara.
