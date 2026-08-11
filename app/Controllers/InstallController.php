@@ -43,20 +43,40 @@ class InstallController extends Controller
                 $error = 'Password administrator minimal 8 karakter.';
             } else {
                 try {
-                    // Step 1: Connect to server first (without database to allow automatic creation)
-                    $dsnWithoutDb = "mysql:host={$host};port={$port};charset=utf8mb4";
-                    $pdo = new PDO($dsnWithoutDb, $username, $password, [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-                    ]);
-
-                    // Step 2: Create database if not exists
-                    $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-
-                    // Step 3: Reconnect with target database
+                    $pdo = null;
                     $dsnWithDb = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
-                    $pdo = new PDO($dsnWithDb, $username, $password, [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-                    ]);
+                    
+                    // Step 1 & 2: Detect if database exists by trying to connect to it first
+                    try {
+                        $pdo = new PDO($dsnWithDb, $username, $password, [
+                            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                        ]);
+                    } catch (Throwable $e) {
+                        $isUnknownDb = false;
+                        if ($e instanceof \PDOException) {
+                            if (isset($e->errorInfo[1]) && $e->errorInfo[1] === 1049) {
+                                $isUnknownDb = true;
+                            } elseif (str_contains(strtolower($e->getMessage()), 'unknown database') || str_contains($e->getMessage(), '1049')) {
+                                $isUnknownDb = true;
+                            }
+                        }
+
+                        if ($isUnknownDb) {
+                            // Reconnect without database first to create it
+                            $dsnWithoutDb = "mysql:host={$host};port={$port};charset=utf8mb4";
+                            $pdoWithoutDb = new PDO($dsnWithoutDb, $username, $password, [
+                                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                            ]);
+                            $pdoWithoutDb->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                            
+                            // Reconnect with target database
+                            $pdo = new PDO($dsnWithDb, $username, $password, [
+                                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                            ]);
+                        } else {
+                            throw $e;
+                        }
+                    }
 
                     // Step 4: Load and execute DDL from database.sql
                     $sqlFile = __DIR__ . '/../../database.sql';
@@ -66,7 +86,10 @@ class InstallController extends Controller
 
                     $sqlContent = file_get_contents($sqlFile);
                     
-                    // Filter database creation statements in database.sql if any to run on clean reconnect
+                    // Strip CREATE DATABASE and USE statements dynamically to avoid switching back to evoting_osis_gedeg
+                    $sqlContent = preg_replace('/CREATE DATABASE[^;]+;/i', '', $sqlContent);
+                    $sqlContent = preg_replace('/USE [^;]+;/i', '', $sqlContent);
+                    
                     $pdo->exec($sqlContent);
 
                     // Step 5: Setup customized admin account
