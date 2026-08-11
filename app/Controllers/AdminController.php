@@ -44,7 +44,6 @@ class AdminController extends Controller
     {
         $this->requireAdmin();
 
-        $error = '';
         $adminId = (int) Session::get('admin_id');
 
         if ($this->isPost()) {
@@ -56,19 +55,19 @@ class AdminController extends Controller
             $confirmPassword = (string) ($_POST['confirm_password'] ?? '');
 
             if (mb_strlen($username) < 3 || mb_strlen($username) > 60) {
-                $error = 'Username harus berisi 3 sampai 60 karakter.';
+                Session::flash('error', 'Username harus berisi 3 sampai 60 karakter.');
             } elseif ($currentPassword === '' || $newPassword === '' || $confirmPassword === '') {
-                $error = 'Semua kolom password wajib diisi.';
+                Session::flash('error', 'Semua kolom password wajib diisi.');
             } elseif (strlen($newPassword) < 8) {
-                $error = 'Password baru minimal 8 karakter.';
+                Session::flash('error', 'Password baru minimal 8 karakter.');
             } elseif ($newPassword !== $confirmPassword) {
-                $error = 'Konfirmasi password baru tidak sama.';
+                Session::flash('error', 'Konfirmasi password baru tidak sama.');
             } else {
                 $adminModel = new Admin();
                 $admin = $adminModel->findById($adminId);
 
                 if (!$admin || !password_verify($currentPassword, $admin['password'])) {
-                    $error = 'Password saat ini tidak sesuai.';
+                    Session::flash('error', 'Password saat ini tidak sesuai.');
                 } else {
                     try {
                         $adminModel->updatePassword($adminId, password_hash($newPassword, PASSWORD_DEFAULT));
@@ -79,16 +78,85 @@ class AdminController extends Controller
                         
                         Session::set('admin_username', $username);
                         Session::flash('success', 'Username dan password admin berhasil diperbarui.');
-                        $this->redirect('/admin/account');
                     } catch (PDOException $exception) {
-                        $error = 'Username tersebut sudah digunakan. Silakan pilih username lain.';
+                        Session::flash('error', 'Username tersebut sudah digunakan. Silakan pilih username lain.');
                     }
                 }
             }
         }
 
-        $flash = Session::getFlash();
-        $this->render('admin/account', compact('error', 'flash'));
+        $this->redirect('/admin#settings');
+    }
+
+    public function uploadLogos(): void
+    {
+        $this->requireAdmin();
+
+        if ($this->isPost()) {
+            $this->validateCsrf();
+
+            $uploadDir = __DIR__ . '/../../assets/uploads/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $successCount = 0;
+            $errors = [];
+
+            $files = ['logo_1', 'logo_2', 'logo_3', 'logo_4', 'favicon'];
+
+            foreach ($files as $field) {
+                if (isset($_FILES[$field]) && $_FILES[$field]['error'] !== UPLOAD_ERR_NO_FILE) {
+                    $file = $_FILES[$field];
+
+                    if ($file['error'] !== UPLOAD_ERR_OK) {
+                        $errors[] = "Gagal mengunggah berkas {$field}.";
+                        continue;
+                    }
+
+                    if ($file['size'] > 2 * 1024 * 1024) {
+                        $errors[] = "Ukuran berkas {$field} maksimal 2MB.";
+                        continue;
+                    }
+
+                    // Secure MIME detection
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                    $mimeType = finfo_file($finfo, $file['tmp_name']);
+                    finfo_close($finfo);
+
+                    if ($field === 'favicon') {
+                        $allowedMimes = ['image/png', 'image/x-icon', 'image/vnd.microsoft.icon'];
+                        if (!in_array($mimeType, $allowedMimes, true)) {
+                            $errors[] = "Format favicon harus PNG atau ICO.";
+                            continue;
+                        }
+                        $dest = $uploadDir . 'favicon.png';
+                    } else {
+                        if ($mimeType !== 'image/png') {
+                            $errors[] = "Format {$field} harus PNG transparan.";
+                            continue;
+                        }
+                        $dest = $uploadDir . $field . '.png';
+                    }
+
+                    if (move_uploaded_file($file['tmp_name'], $dest)) {
+                        $successCount++;
+                    } else {
+                        $errors[] = "Gagal memindahkan berkas {$field}.";
+                    }
+                }
+            }
+
+            if (count($errors) > 0) {
+                Session::flash('error', implode(' ', $errors));
+            } elseif ($successCount > 0) {
+                Session::flash('success', "Berhasil memperbarui {$successCount} logo/favicon.");
+            } else {
+                Session::flash('error', 'Tidak ada berkas logo yang dipilih untuk diunggah.');
+            }
+        }
+
+        $this->redirect('/admin#settings');
     }
 
     public function editCandidate(): void

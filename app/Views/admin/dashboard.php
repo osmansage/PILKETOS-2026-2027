@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="icon" type="image/png" href="<?= get_favicon_url('/assets/images/favicon.png'); ?>">
 </head>
 <body class="min-h-screen px-4 py-8">
     <main class="mx-auto max-w-7xl" data-admin-dashboard>
@@ -22,10 +23,10 @@
                 <p class="mt-2 text-slate-300">Login sebagai <?= e($_SESSION['admin_username']); ?>. <span data-refresh-status>Memuat data...</span></p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white shadow-xl transition hover:bg-white hover:text-[#07172f]" href="/admin/account">
+                <button class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white shadow-xl transition hover:bg-white hover:text-[#07172f]" data-settings-trigger>
                     <i class="fa-solid fa-user-gear"></i>
                     Ubah Akun
-                </a>
+                </button>
                 <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 font-black text-[#07172f] shadow-xl transition hover:-translate-y-0.5" href="/admin/logout">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     Keluar
@@ -50,6 +51,9 @@
             </button>
             <button class="tab-button px-6 py-3 font-bold text-slate-400 transition hover:text-white" data-tab="codes">
                 <i class="fa-solid fa-key mr-2"></i> Kode Peserta
+            </button>
+            <button class="tab-button px-6 py-3 font-bold text-slate-400 transition hover:text-white" data-tab="settings">
+                <i class="fa-solid fa-gears mr-2"></i> Pengaturan
             </button>
         </nav>
 
@@ -228,6 +232,140 @@
                             <i class="fa-solid fa-rotate mr-1"></i> Generate Kode Baru
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Pengaturan -->
+        <div id="tab-settings" class="tab-content hidden">
+            <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                <!-- Upload Logos Grid Card -->
+                <div class="glass p-6 rounded-[2rem] text-white">
+                    <h2 class="text-xl font-black mb-4 flex items-center gap-2"><i class="fa-solid fa-images text-[#f6c85f]"></i>Kelola Logo &amp; Favicon</h2>
+                    <p class="text-xs text-slate-300 leading-5 mb-6">Unggah berkas gambar berformat PNG transparan untuk logo sekolah/OSIS/MPK, serta berkas PNG/ICO untuk Favicon sistem.</p>
+                    
+                    <form action="/admin/settings/logos" method="post" enctype="multipart/form-data" class="space-y-4">
+                        <input type="hidden" name="csrf_token" value="<?= e(csrf_token()); ?>">
+                        
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <!-- Logo 1 SMANEG -->
+                            <div class="border border-white/10 rounded-2xl p-4 bg-white/5 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-xs font-bold text-[#f6c85f] mb-2">Logo 1: SMAN 1 Gedeg</h3>
+                                    <div class="h-16 w-16 bg-white/10 rounded-xl mx-auto flex items-center justify-center mb-3 overflow-hidden">
+                                        <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_1.png')): ?>
+                                            <img class="h-full w-full object-contain" src="<?= get_logo_url(1, ''); ?>" alt="Logo 1">
+                                        <?php else: ?>
+                                            <i class="fa-solid fa-graduation-cap text-white/50 text-xl"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <input type="file" name="logo_1" accept=".png" class="w-full text-xs text-slate-300 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-[#f6c85f] file:text-[#07172f] hover:file:bg-white">
+                            </div>
+
+                            <!-- Logo 2 OSIS -->
+                            <div class="border border-white/10 rounded-2xl p-4 bg-white/5 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-xs font-bold text-[#f6c85f] mb-2">Logo 2: OSIS SMANEG</h3>
+                                    <div class="h-16 w-16 bg-white/10 rounded-xl mx-auto flex items-center justify-center mb-3 overflow-hidden">
+                                        <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_2.png')): ?>
+                                            <img class="h-full w-full object-contain" src="<?= get_logo_url(2, ''); ?>" alt="Logo 2">
+                                        <?php else: ?>
+                                            <i class="fa-solid fa-shield-halved text-white/50 text-xl"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <input type="file" name="logo_2" accept=".png" class="w-full text-xs text-slate-300 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-[#f6c85f] file:text-[#07172f] hover:file:bg-white">
+                            </div>
+
+                            <!-- Logo 3 MPK -->
+                            <div class="border border-white/10 rounded-2xl p-4 bg-white/5 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-xs font-bold text-[#f6c85f] mb-2">Logo 3: MPK SMANEG</h3>
+                                    <div class="h-16 w-16 bg-white/10 rounded-xl mx-auto flex items-center justify-center mb-3 overflow-hidden">
+                                        <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_3.png')): ?>
+                                            <img class="h-full w-full object-contain" src="<?= get_logo_url(3, ''); ?>" alt="Logo 3">
+                                        <?php else: ?>
+                                            <i class="fa-solid fa-users text-white/50 text-xl"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <input type="file" name="logo_3" accept=".png" class="w-full text-xs text-slate-300 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-[#f6c85f] file:text-[#07172f] hover:file:bg-white">
+                            </div>
+
+                            <!-- Logo 4 Extra -->
+                            <div class="border border-white/10 rounded-2xl p-4 bg-white/5 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-xs font-bold text-[#f6c85f] mb-2">Logo 4: Tambahan</h3>
+                                    <div class="h-16 w-16 bg-white/10 rounded-xl mx-auto flex items-center justify-center mb-3 overflow-hidden">
+                                        <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_4.png')): ?>
+                                            <img class="h-full w-full object-contain" src="<?= get_logo_url(4, ''); ?>" alt="Logo 4">
+                                        <?php else: ?>
+                                            <i class="fa-solid fa-plus text-white/50 text-xl"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <input type="file" name="logo_4" accept=".png" class="w-full text-xs text-slate-300 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-[#f6c85f] file:text-[#07172f] hover:file:bg-white">
+                            </div>
+                        </div>
+
+                        <!-- Favicon system slot -->
+                        <div class="border border-white/10 rounded-2xl p-4 bg-white/5 flex items-center justify-between gap-4 mt-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-12 w-12 bg-white/10 rounded-xl flex items-center justify-center overflow-hidden">
+                                    <?php if (file_exists(__DIR__ . '/../../../assets/uploads/favicon.png')): ?>
+                                        <img class="h-full w-full object-contain" src="<?= get_favicon_url(''); ?>" alt="Favicon">
+                                    <?php else: ?>
+                                        <i class="fa-solid fa-globe text-white/50 text-lg"></i>
+                                    <?php endif; ?>
+                                </div>
+                                <div>
+                                    <h3 class="text-xs font-bold text-[#f6c85f]">Logo 5: Favicon Browser</h3>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Format PNG/ICO transparan.</p>
+                                </div>
+                            </div>
+                            <input type="file" name="favicon" accept=".png,.ico" class="text-xs text-slate-300 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-[#f6c85f] file:text-[#07172f] hover:file:bg-white">
+                        </div>
+
+                        <button type="submit" class="btn-ripple w-full rounded-xl bg-[#f6c85f] py-3.5 font-black text-[#07172f] shadow-xl transition hover:bg-white mt-6">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Unggah Semua Logo
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Change Password Form Card -->
+                <div class="glass p-6 rounded-[2rem] text-white">
+                    <h2 class="text-xl font-black mb-4 flex items-center gap-2"><i class="fa-solid fa-user-lock text-[#54d6ff]"></i>Ubah Kredensial Admin</h2>
+                    <p class="text-xs text-slate-300 leading-5 mb-6">Perbarui username administrator dan ganti password lama dengan password baru yang lebih aman.</p>
+                    
+                    <form action="/admin/account" method="post" class="space-y-4">
+                        <input type="hidden" name="csrf_token" value="<?= e(csrf_token()); ?>">
+                        
+                        <label class="block">
+                            <span class="mb-2 block text-xs font-semibold text-slate-200">Username Admin</span>
+                            <input class="focus-ring w-full rounded-xl border border-white/20 bg-white/95 px-4 py-2.5 font-semibold text-slate-900 text-sm" type="text" name="username" value="<?= e($_SESSION['admin_username']); ?>" required>
+                        </label>
+                        
+                        <label class="block">
+                            <span class="mb-2 block text-xs font-semibold text-slate-200">Password Saat Ini</span>
+                            <input class="focus-ring w-full rounded-xl border border-white/20 bg-white/95 px-4 py-2.5 font-semibold text-slate-900 text-sm" type="password" name="current_password" required>
+                        </label>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <label class="block">
+                                <span class="mb-2 block text-xs font-semibold text-slate-200">Password Baru</span>
+                                <input class="focus-ring w-full rounded-xl border border-white/20 bg-white/95 px-4 py-2.5 font-semibold text-slate-900 text-sm" type="password" name="new_password" minlength="8" required>
+                            </label>
+                            <label class="block">
+                                <span class="mb-2 block text-xs font-semibold text-slate-200">Konfirmasi Password</span>
+                                <input class="focus-ring w-full rounded-xl border border-white/20 bg-white/95 px-4 py-2.5 font-semibold text-slate-900 text-sm" type="password" name="confirm_password" minlength="8" required>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn-ripple w-full rounded-xl bg-[#54d6ff] py-3.5 font-black text-[#07172f] shadow-xl transition hover:bg-white mt-6">
+                            <i class="fa-solid fa-key mr-1"></i> Simpan Password Baru
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

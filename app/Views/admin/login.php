@@ -8,12 +8,43 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link class="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="icon" type="image/png" href="<?= get_favicon_url('/assets/images/favicon.png'); ?>">
 </head>
 <body class="flex min-h-screen items-center justify-center px-4 py-10">
     <main class="glass w-full max-w-md rounded-[2rem] p-8" data-aos="fade-up">
+        <!-- Logo Row Card -->
+        <div class="flex items-center justify-center gap-6 rounded-2xl bg-white/95 p-4 mb-6 shadow-inner">
+            <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-slate-100 object-contain overflow-hidden">
+                <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_1.png')): ?>
+                    <img class="h-full w-full object-contain" src="<?= get_logo_url(1, ''); ?>" alt="Logo SMAN 1 Gedeg">
+                <?php else: ?>
+                    <i class="fa-solid fa-graduation-cap text-[#07172f] text-xl" title="SMAN 1 Gedeg"></i>
+                <?php endif; ?>
+            </div>
+            <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-slate-100 object-contain overflow-hidden">
+                <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_2.png')): ?>
+                    <img class="h-full w-full object-contain" src="<?= get_logo_url(2, ''); ?>" alt="Logo OSIS">
+                <?php else: ?>
+                    <i class="fa-solid fa-shield-halved text-[#07172f] text-xl" title="OSIS"></i>
+                <?php endif; ?>
+            </div>
+            <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-slate-100 object-contain overflow-hidden">
+                <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_3.png')): ?>
+                    <img class="h-full w-full object-contain" src="<?= get_logo_url(3, ''); ?>" alt="Logo MPK">
+                <?php else: ?>
+                    <i class="fa-solid fa-users text-[#07172f] text-xl" title="MPK"></i>
+                <?php endif; ?>
+            </div>
+            <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_4.png')): ?>
+                <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-slate-100 object-contain overflow-hidden">
+                    <img class="h-full w-full object-contain" src="<?= get_logo_url(4, ''); ?>" alt="Logo Tambahan">
+                </div>
+            <?php endif; ?>
+        </div>
+
         <div class="mb-7 text-center">
             <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-3xl text-[#07172f] shadow-xl">
                 <i class="fa-solid fa-chart-line"></i>

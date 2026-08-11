@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" type="image/png" href="<?= get_favicon_url('/assets/images/favicon.png'); ?>">
 </head>
 <body class="flex min-h-screen items-center justify-center px-4 py-10">
     <main class="glass max-w-2xl rounded-[2rem] p-8 text-center sm:p-12" data-aos="zoom-in">

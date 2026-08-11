@@ -153,6 +153,25 @@ function initAdminControls() {
         });
     }
 
+    // Settings trigger button from header
+    const settingsTrigger = document.querySelector('[data-settings-trigger]');
+    if (settingsTrigger) {
+        settingsTrigger.addEventListener('click', () => {
+            const settingsTabBtn = document.querySelector('[data-tab="settings"]');
+            if (settingsTabBtn) {
+                settingsTabBtn.click();
+            }
+        });
+    }
+
+    // Auto-activate settings tab if hash is present
+    if (window.location.hash === '#settings') {
+        const settingsTabBtn = document.querySelector('[data-tab="settings"]');
+        if (settingsTabBtn) {
+            settingsTabBtn.click();
+        }
+    }
+
     // 2. Edit Candidate Modal
     const editModal = document.querySelector('#edit-candidate-modal');
     const editBtns = document.querySelectorAll('[data-edit-candidate-btn]');

@@ -77,6 +77,10 @@ try {
             (new \App\Controllers\AdminController())->changePassword();
             break;
 
+        case '/admin/settings/logos':
+            (new \App\Controllers\AdminController())->uploadLogos();
+            break;
+
         case '/admin/logout':
             (new \App\Controllers\AuthController())->adminLogout();
             break;

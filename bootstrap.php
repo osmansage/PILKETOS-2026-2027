@@ -50,3 +50,21 @@ if (!function_exists('page_title')) {
     }
 }
 
+if (!function_exists('get_logo_url')) {
+    function get_logo_url(int $num, string $default): string
+    {
+        $path = "assets/uploads/logo_{$num}.png";
+        $file = __DIR__ . '/' . $path;
+        return file_exists($file) ? '/' . $path . '?v=' . filemtime($file) : $default;
+    }
+}
+
+if (!function_exists('get_favicon_url')) {
+    function get_favicon_url(string $default): string
+    {
+        $path = "assets/uploads/favicon.png";
+        $file = __DIR__ . '/' . $path;
+        return file_exists($file) ? '/' . $path . '?v=' . filemtime($file) : $default;
+    }
+}
+
