@@ -93,10 +93,6 @@
                     Masuk Voting
                 </button>
             </form>
-
-            <div class="mt-6 text-center text-sm text-slate-300">
-                <a href="/admin/login" class="font-bold text-white underline decoration-white/30 underline-offset-4">Login Admin</a>
-            </div>
         </section>
     </main>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
