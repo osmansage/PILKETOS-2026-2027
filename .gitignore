@@ -5,5 +5,8 @@ config/installed.lock
 assets/uploads/*
 !assets/uploads/.gitkeep
 
+# Ignore database config containing production credentials
+config/database.php
+
 # Ignore OS files
 .DS_Store
