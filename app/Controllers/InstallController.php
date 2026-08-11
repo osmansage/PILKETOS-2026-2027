@@ -27,7 +27,12 @@ class InstallController extends Controller
         $error = '';
         $success = '';
 
-        if ($this->isPost()) {
+        $configDir = __DIR__ . '/../../config';
+        if (!is_writable($configDir)) {
+            $error = "Direktori 'config/' tidak memiliki izin tulis (Permission Denied). Harap ubah permission folder 'config/' menjadi writable (misalnya chmod 755 atau 777 di cPanel/hosting Anda) agar konfigurasi dapat disimpan.";
+        }
+
+        if ($this->isPost() && empty($error)) {
             $host = Security::sanitizeInput($_POST['host'] ?? '127.0.0.1');
             $port = Security::sanitizeInput($_POST['port'] ?? '3306');
             $dbName = Security::sanitizeInput($_POST['db_name'] ?? 'evoting_osis_gedeg');
@@ -100,7 +105,10 @@ class InstallController extends Controller
 
                     // Step 6: Write dynamic config/database.php
                     $configContent = "<?php\ndeclare(strict_types=1);\n\n\$dbHost = '" . addslashes($host) . "';\n\$dbName = '" . addslashes($dbName) . "';\n\$dbUser = '" . addslashes($username) . "';\n\$dbPass = '" . addslashes($password) . "';\n\$dbCharset = 'utf8mb4';\n";
-                    file_put_contents(__DIR__ . '/../../config/database.php', $configContent);
+                    $writtenConfig = file_put_contents(__DIR__ . '/../../config/database.php', $configContent);
+                    if ($writtenConfig === false) {
+                        throw new Exception("Gagal menulis file konfigurasi database di 'config/database.php'. Pastikan folder 'config/' memiliki izin tulis (write permission).");
+                    }
 
                     // Step 7: Create installed.lock file
                     $lockFile = __DIR__ . '/../../config/installed.lock';
@@ -108,7 +116,10 @@ class InstallController extends Controller
                         'installed_at' => date('Y-m-d H:i:s'),
                         'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
                     ], JSON_PRETTY_PRINT);
-                    file_put_contents($lockFile, $lockData);
+                    $writtenLock = file_put_contents($lockFile, $lockData);
+                    if ($writtenLock === false) {
+                        throw new Exception("Gagal menulis file lock di 'config/installed.lock'. Pastikan folder 'config/' memiliki izin tulis (write permission).");
+                    }
 
                     Session::flash('success', 'Instalasi sistem e-voting berhasil. Silakan masuk sebagai siswa atau administrator.');
                     $this->redirect('/login');
