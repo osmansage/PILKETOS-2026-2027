@@ -1,0 +1,9 @@
+# Ignore local environment lock file
+config/installed.lock
+
+# Ignore any candidate photos uploaded locally
+assets/uploads/*
+!assets/uploads/.gitkeep
+
+# Ignore OS files
+.DS_Store

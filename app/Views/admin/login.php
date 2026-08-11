@@ -1,37 +1,3 @@
-<?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
-
-if (is_admin_logged_in()) {
-    redirect('index.php');
-}
-
-$error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim((string) ($_POST['username'] ?? ''));
-    $password = (string) ($_POST['password'] ?? '');
-
-    if (!verify_csrf($_POST['csrf_token'] ?? null)) {
-        $error = 'Sesi tidak valid. Silakan coba lagi.';
-    } elseif ($username === '' || $password === '') {
-        $error = 'Username dan password wajib diisi.';
-    } else {
-        $stmt = $pdo->prepare('SELECT id, username, password FROM admin WHERE username = ? LIMIT 1');
-        $stmt->execute([$username]);
-        $admin = $stmt->fetch();
-
-        if (!$admin || !password_verify($password, $admin['password'])) {
-            $error = 'Username atau password salah.';
-        } else {
-            session_regenerate_id(true);
-            $_SESSION['admin_id'] = (int) $admin['id'];
-            $_SESSION['admin_username'] = $admin['username'];
-            redirect('index.php');
-        }
-    }
-}
-?>
 <!doctype html>
 <html lang="id">
 <head>
@@ -42,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link class="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
@@ -56,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="mt-2 text-sm text-slate-300">Pantau hasil voting secara real-time.</p>
         </div>
 
-        <?php if ($error !== ''): ?>
+        <?php if (!empty($error)): ?>
             <div class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"><?= e($error); ?></div>
         <?php endif; ?>
 
@@ -75,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Masuk Admin
             </button>
         </form>
-        <a href="../login.php" class="mt-6 block text-center text-sm font-bold text-white underline decoration-white/30 underline-offset-4">Kembali ke Login Siswa</a>
+        <a href="/login" class="mt-6 block text-center text-sm font-bold text-white underline decoration-white/30 underline-offset-4">Kembali ke Login Siswa</a>
     </main>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="../assets/js/main.js"></script>

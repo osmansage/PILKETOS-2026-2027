@@ -1,40 +1,3 @@
-<?php
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/includes/functions.php';
-
-if (is_student_logged_in()) {
-    redirect('vote.php');
-}
-
-$error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = strtoupper(trim((string) ($_POST['username'] ?? '')));
-
-    if (!verify_csrf($_POST['csrf_token'] ?? null)) {
-        $error = 'Sesi tidak valid. Silakan coba lagi.';
-    } elseif (!preg_match('/^[A-Z0-9]{20}$/', $username)) {
-        $error = 'Kode peserta harus terdiri dari 20 karakter huruf atau angka.';
-    } else {
-        $stmt = $pdo->prepare('SELECT id, username, status_vote FROM users WHERE username = ? LIMIT 1');
-        $stmt->execute([$username]);
-        $user = $stmt->fetch();
-
-        if (!$user) {
-            $error = 'Username tidak ditemukan.';
-        } elseif ($user['status_vote'] === 'sudah') {
-            $error = 'Akun ini sudah digunakan untuk memilih dan tidak dapat voting lagi.';
-        } else {
-            session_regenerate_id(true);
-            $_SESSION['user_id'] = (int) $user['id'];
-            $_SESSION['user_username'] = $user['username'];
-            redirect('vote.php');
-        }
-    }
-}
-
-$flash = get_flash();
-?>
 <!doctype html>
 <html lang="id">
 <head>
@@ -85,7 +48,7 @@ $flash = get_flash();
                 <p class="mt-2 text-sm text-slate-300">Masukkan kode peserta 20 karakter dari panitia.</p>
             </div>
 
-            <?php if ($error !== ''): ?>
+            <?php if (!empty($error)): ?>
                 <div class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"><?= e($error); ?></div>
             <?php endif; ?>
             <?php if ($flash): ?>
@@ -105,7 +68,7 @@ $flash = get_flash();
             </form>
 
             <div class="mt-6 text-center text-sm text-slate-300">
-                <a href="admin/login.php" class="font-bold text-white underline decoration-white/30 underline-offset-4">Login Admin</a>
+                <a href="/admin/login" class="font-bold text-white underline decoration-white/30 underline-offset-4">Login Admin</a>
             </div>
         </section>
     </main>

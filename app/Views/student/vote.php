@@ -1,74 +1,3 @@
-<?php
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/includes/functions.php';
-
-require_student();
-
-$stmt = $pdo->prepare('SELECT id, status_vote FROM users WHERE id = ? LIMIT 1');
-$stmt->execute([$_SESSION['user_id']]);
-$currentUser = $stmt->fetch();
-
-if (!$currentUser || $currentUser['status_vote'] === 'sudah') {
-    unset($_SESSION['user_id'], $_SESSION['user_username']);
-    flash('error', 'Akun ini sudah digunakan untuk memilih dan tidak boleh voting lagi.');
-    redirect('login.php');
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $candidateId = filter_input(INPUT_POST, 'candidate_id', FILTER_VALIDATE_INT);
-
-    if (!verify_csrf($_POST['csrf_token'] ?? null)) {
-        flash('error', 'Sesi tidak valid. Silakan ulangi pilihan.');
-        redirect('vote.php');
-    }
-
-    if (!$candidateId) {
-        flash('error', 'Pilih salah satu calon ketua.');
-        redirect('vote.php');
-    }
-
-    try {
-        $pdo->beginTransaction();
-
-        $lockUser = $pdo->prepare("SELECT status_vote FROM users WHERE id = ? FOR UPDATE");
-        $lockUser->execute([$_SESSION['user_id']]);
-        $lockedUser = $lockUser->fetch();
-
-        $candidate = $pdo->prepare('SELECT id FROM candidates WHERE id = ? FOR UPDATE');
-        $candidate->execute([$candidateId]);
-
-        if (!$lockedUser || $lockedUser['status_vote'] === 'sudah' || !$candidate->fetch()) {
-            $pdo->rollBack();
-            flash('error', 'Pilihan tidak dapat diproses.');
-            redirect('vote.php');
-        }
-
-        $insertVote = $pdo->prepare('INSERT INTO votes (user_id, candidate_id, voted_at) VALUES (?, ?, NOW())');
-        $insertVote->execute([$_SESSION['user_id'], $candidateId]);
-
-        $updateCandidate = $pdo->prepare('UPDATE candidates SET total_votes = total_votes + 1 WHERE id = ?');
-        $updateCandidate->execute([$candidateId]);
-
-        $updateUser = $pdo->prepare("UPDATE users SET status_vote = 'sudah' WHERE id = ?");
-        $updateUser->execute([$_SESSION['user_id']]);
-
-        $pdo->commit();
-
-        unset($_SESSION['user_id'], $_SESSION['user_username']);
-        $_SESSION['vote_success'] = true;
-        redirect('thanks.php');
-    } catch (Throwable $exception) {
-        if ($pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
-        flash('error', 'Voting gagal diproses. Silakan coba lagi.');
-        redirect('vote.php');
-    }
-}
-
-$candidates = $pdo->query('SELECT * FROM candidates ORDER BY number ASC')->fetchAll();
-$flash = get_flash();
-?>
 <!doctype html>
 <html lang="id">
 <head>
@@ -90,7 +19,7 @@ $flash = get_flash();
             <h1 class="text-3xl font-black text-white sm:text-4xl">Pilih Calon Ketua</h1>
             <p class="mt-2 text-slate-300">Halo, <?= e($_SESSION['user_username']); ?>. Suara hanya dapat dikirim satu kali.</p>
         </div>
-        <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-white hover:text-[#07172f]" href="logout.php">
+        <a class="btn-ripple inline-flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-white hover:text-[#07172f]" href="/logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
             Keluar
         </a>

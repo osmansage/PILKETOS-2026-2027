@@ -1,0 +1,100 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Core\Security;
+use App\Core\Session;
+use PDO;
+use Exception;
+use Throwable;
+
+class InstallController extends Controller
+{
+    private function checkInstalled(): void
+    {
+        $lockFile = __DIR__ . '/../../config/installed.lock';
+        if (file_exists($lockFile)) {
+            $this->redirect('/login');
+        }
+    }
+
+    public function index(): void
+    {
+        $this->checkInstalled();
+
+        $error = '';
+        $success = '';
+
+        if ($this->isPost()) {
+            $host = Security::sanitizeInput($_POST['host'] ?? '127.0.0.1');
+            $port = Security::sanitizeInput($_POST['port'] ?? '3306');
+            $dbName = Security::sanitizeInput($_POST['db_name'] ?? 'evoting_osis_gedeg');
+            $username = Security::sanitizeInput($_POST['username'] ?? 'root');
+            $password = (string) ($_POST['password'] ?? '');
+            
+            $adminUser = Security::sanitizeInput($_POST['admin_user'] ?? 'admin');
+            $adminPass = (string) ($_POST['admin_pass'] ?? 'password');
+
+            if ($host === '' || $port === '' || $dbName === '' || $username === '' || $adminUser === '' || $adminPass === '') {
+                $error = 'Semua kolom formulir wajib diisi.';
+            } elseif (strlen($adminPass) < 8) {
+                $error = 'Password administrator minimal 8 karakter.';
+            } else {
+                try {
+                    // Step 1: Connect to server first (without database to allow automatic creation)
+                    $dsnWithoutDb = "mysql:host={$host};port={$port};charset=utf8mb4";
+                    $pdo = new PDO($dsnWithoutDb, $username, $password, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                    ]);
+
+                    // Step 2: Create database if not exists
+                    $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+
+                    // Step 3: Reconnect with target database
+                    $dsnWithDb = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
+                    $pdo = new PDO($dsnWithDb, $username, $password, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                    ]);
+
+                    // Step 4: Load and execute DDL from database.sql
+                    $sqlFile = __DIR__ . '/../../database.sql';
+                    if (!file_exists($sqlFile)) {
+                        throw new Exception("Berkas 'database.sql' skema tidak ditemukan di root direktori.");
+                    }
+
+                    $sqlContent = file_get_contents($sqlFile);
+                    
+                    // Filter database creation statements in database.sql if any to run on clean reconnect
+                    $pdo->exec($sqlContent);
+
+                    // Step 5: Setup customized admin account
+                    $hashedPassword = password_hash($adminPass, PASSWORD_DEFAULT);
+                    $pdo->exec("DELETE FROM admin");
+                    $stmt = $pdo->prepare("INSERT INTO admin (username, password) VALUES (?, ?)");
+                    $stmt->execute([$adminUser, $hashedPassword]);
+
+                    // Step 6: Write dynamic config/database.php
+                    $configContent = "<?php\ndeclare(strict_types=1);\n\n\$dbHost = '" . addslashes($host) . "';\n\$dbName = '" . addslashes($dbName) . "';\n\$dbUser = '" . addslashes($username) . "';\n\$dbPass = '" . addslashes($password) . "';\n\$dbCharset = 'utf8mb4';\n";
+                    file_put_contents(__DIR__ . '/../../config/database.php', $configContent);
+
+                    // Step 7: Create installed.lock file
+                    $lockFile = __DIR__ . '/../../config/installed.lock';
+                    $lockData = json_encode([
+                        'installed_at' => date('Y-m-d H:i:s'),
+                        'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+                    ], JSON_PRETTY_PRINT);
+                    file_put_contents($lockFile, $lockData);
+
+                    Session::flash('success', 'Instalasi sistem e-voting berhasil. Silakan masuk sebagai siswa atau administrator.');
+                    $this->redirect('/login');
+                } catch (Throwable $e) {
+                    $error = 'Koneksi database atau instalasi gagal: ' . $e->getMessage();
+                }
+            }
+        }
+
+        $this->render('install', compact('error'));
+    }
+}
