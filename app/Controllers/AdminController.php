@@ -97,7 +97,12 @@ class AdminController extends Controller
 
             $uploadDir = __DIR__ . '/../../assets/uploads/';
             if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
+                @mkdir($uploadDir, 0777, true);
+            }
+
+            if (!is_writable($uploadDir)) {
+                Session::flash('error', "Direktori 'assets/uploads/' tidak memiliki izin tulis (Permission Denied). Harap ubah permission folder 'assets/uploads/' menjadi writable (chmod 755 atau 777 di hosting Anda) agar logo dapat diunggah.");
+                $this->redirect('/admin#settings');
             }
 
             $successCount = 0;
