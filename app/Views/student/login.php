@@ -1,40 +1,3 @@
-<?php
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/includes/functions.php';
-
-if (is_student_logged_in()) {
-    redirect('vote.php');
-}
-
-$error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = strtoupper(trim((string) ($_POST['username'] ?? '')));
-
-    if (!verify_csrf($_POST['csrf_token'] ?? null)) {
-        $error = 'Sesi tidak valid. Silakan coba lagi.';
-    } elseif (!preg_match('/^[A-Z0-9]{20}$/', $username)) {
-        $error = 'Kode peserta harus terdiri dari 20 karakter huruf atau angka.';
-    } else {
-        $stmt = $pdo->prepare('SELECT id, username, status_vote FROM users WHERE username = ? LIMIT 1');
-        $stmt->execute([$username]);
-        $user = $stmt->fetch();
-
-        if (!$user) {
-            $error = 'Username tidak ditemukan.';
-        } elseif ($user['status_vote'] === 'sudah') {
-            $error = 'Akun ini sudah digunakan untuk memilih dan tidak dapat voting lagi.';
-        } else {
-            session_regenerate_id(true);
-            $_SESSION['user_id'] = (int) $user['id'];
-            $_SESSION['user_username'] = $user['username'];
-            redirect('vote.php');
-        }
-    }
-}
-
-$flash = get_flash();
-?>
 <!doctype html>
 <html lang="id">
 <head>
@@ -48,13 +11,39 @@ $flash = get_flash();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" type="image/png" href="<?= get_favicon_url('/assets/images/favicon.png'); ?>">
 </head>
 <body class="flex min-h-screen items-center justify-center px-4 py-10">
     <main class="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
         <section class="space-y-7" data-aos="fade-right">
-            <div class="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-semibold text-white shadow-lg">
-                <i class="fa-solid fa-shield-halved text-[#f6c85f]"></i>
-                Sistem Pemilihan Digital
+            <!-- Logo Row Card -->
+            <div class="inline-flex items-center gap-5 rounded-2xl bg-white/95 p-3 shadow-lg">
+                <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-100 object-contain overflow-hidden">
+                    <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_1.png')): ?>
+                        <img class="h-full w-full object-contain" src="<?= get_logo_url(1, ''); ?>" alt="Logo SMAN 1 Gedeg">
+                    <?php else: ?>
+                        <i class="fa-solid fa-graduation-cap text-[#07172f] text-lg" title="SMAN 1 Gedeg"></i>
+                    <?php endif; ?>
+                </div>
+                <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-100 object-contain overflow-hidden">
+                    <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_2.png')): ?>
+                        <img class="h-full w-full object-contain" src="<?= get_logo_url(2, ''); ?>" alt="Logo OSIS">
+                    <?php else: ?>
+                        <i class="fa-solid fa-shield-halved text-[#07172f] text-lg" title="OSIS"></i>
+                    <?php endif; ?>
+                </div>
+                <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-100 object-contain overflow-hidden">
+                    <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_3.png')): ?>
+                        <img class="h-full w-full object-contain" src="<?= get_logo_url(3, ''); ?>" alt="Logo MPK">
+                    <?php else: ?>
+                        <i class="fa-solid fa-users text-[#07172f] text-lg" title="MPK"></i>
+                    <?php endif; ?>
+                </div>
+                <?php if (file_exists(__DIR__ . '/../../../assets/uploads/logo_4.png')): ?>
+                    <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-100 object-contain overflow-hidden">
+                        <img class="h-full w-full object-contain" src="<?= get_logo_url(4, ''); ?>" alt="Logo Tambahan">
+                    </div>
+                <?php endif; ?>
             </div>
             <div class="space-y-4">
                 <h1 class="max-w-3xl text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">E-Voting Ketua OSIS SMAN 1 Gedeg</h1>
@@ -77,6 +66,7 @@ $flash = get_flash();
         </section>
 
         <section class="glass rounded-[2rem] p-6 sm:p-8" data-aos="fade-left">
+
             <div class="mb-7 text-center">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-3xl text-[#07172f] shadow-xl">
                     <i class="fa-solid fa-user-check"></i>
@@ -85,7 +75,7 @@ $flash = get_flash();
                 <p class="mt-2 text-sm text-slate-300">Masukkan kode peserta 20 karakter dari panitia.</p>
             </div>
 
-            <?php if ($error !== ''): ?>
+            <?php if (!empty($error)): ?>
                 <div class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"><?= e($error); ?></div>
             <?php endif; ?>
             <?php if ($flash): ?>
@@ -103,10 +93,6 @@ $flash = get_flash();
                     Masuk Voting
                 </button>
             </form>
-
-            <div class="mt-6 text-center text-sm text-slate-300">
-                <a href="admin/login.php" class="font-bold text-white underline decoration-white/30 underline-offset-4">Login Admin</a>
-            </div>
         </section>
     </main>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
